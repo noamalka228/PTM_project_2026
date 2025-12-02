@@ -1,10 +1,13 @@
-package graph;
+package test;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Random;
 
-import graph.TopicManagerSingleton.TopicManager;
+import test.TopicManagerSingleton.TopicManager;
 
 public class MainTrain { // simple tests to get you going...
+
 
     public static void testMessage() {
 
@@ -24,79 +27,75 @@ public class MainTrain { // simple tests to get you going...
             System.out.println("Error: String constructor - date should not be null (-5)");
         }
 
-    }
+    }    
 
-    public static abstract class AAgent implements Agent {
-        public void reset() {
-        }
-
-        public void close() {
-        }
-
-        public String getName() {
+    public static  abstract class AAgent implements Agent{
+        public void reset() {}
+        public void close() {}
+        public String getName(){
             return getClass().getName();
         }
     }
 
-    public static class TestAgent1 extends AAgent {
+    public static class TestAgent1 extends AAgent{
 
-        double sum = 0;
-        int count = 0;
-        TopicManager tm = TopicManagerSingleton.get();
+        double sum=0;
+        int count=0;
+        TopicManager tm=TopicManagerSingleton.get();
 
-        public TestAgent1() {
+        public TestAgent1(){
             tm.getTopic("Numbers").subscribe(this);
         }
 
         @Override
         public void callback(String topic, Message msg) {
             count++;
-            sum += msg.asDouble;
-
-            if (count % 5 == 0) {
+            sum+=msg.asDouble;
+            
+            if(count%5==0){
                 tm.getTopic("Sum").publish(new Message(sum));
-                count = 0;
+                count=0;
             }
 
         }
-
+        
     }
 
-    public static class TestAgent2 extends AAgent {
+    public static class TestAgent2 extends AAgent{
 
-        double sum = 0;
-        TopicManager tm = TopicManagerSingleton.get();
+        double sum=0;
+        TopicManager tm=TopicManagerSingleton.get();
 
-        public TestAgent2() {
+        public TestAgent2(){
             tm.getTopic("Sum").subscribe(this);
         }
 
         @Override
         public void callback(String topic, Message msg) {
-            sum = msg.asDouble;
+            sum=msg.asDouble;
         }
 
-        public double getSum() {
+        public double getSum(){
             return sum;
         }
-
+        
     }
 
-    public static void testAgents() {
-        TopicManager tm = TopicManagerSingleton.get();
-        TestAgent1 a = new TestAgent1();
-        TestAgent2 a2 = new TestAgent2();
-        double sum = 0;
-        for (int c = 0; c < 3; c++) {
-            Topic num = tm.getTopic("Numbers");
-            Random r = new Random();
-            for (int i = 0; i < 5; i++) {
-                int x = r.nextInt(1000);
+    public static void testAgents(){        
+        TopicManager tm=TopicManagerSingleton.get();
+        TestAgent1 a=new TestAgent1();
+        TestAgent2 a2=new TestAgent2();        
+        double sum=0;
+        for(int c=0;c<3;c++){
+            Topic num=tm.getTopic("Numbers");
+            Random r=new Random();
+            for(int i=0;i<5;i++){
+                int x=r.nextInt(1000);
                 num.publish(new Message(x));
-                sum += x;
+                sum+=x;
             }
-            double result = a2.getSum();
-            if (result != sum) {
+            double result=a2.getSum();
+            if(result!=sum){
                 System.out.println("your code published a wrong result (-10)");
             }
         }
@@ -104,9 +103,10 @@ public class MainTrain { // simple tests to get you going...
         a2.close();
     }
 
+        
     public static void main(String[] args) {
         testMessage();
-        testAgents();
+        testAgents();        
         System.out.println("done");
     }
 }
