@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import graph.Message;
 
-
 public class Node {
     private String name;
     private List<Node> edges;
@@ -15,12 +14,13 @@ public class Node {
     public Node(String name) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.edges = new ArrayList<Node>();
-        this.msg = new Message("");
+        this.msg = null;
     }
 
     public String getName() {
         return this.name;
     }
+
     public void setName(String newName) {
         this.name = Objects.requireNonNull(newName, "name cannot be null");
     }
@@ -28,6 +28,7 @@ public class Node {
     public List<Node> getEdges() {
         return this.edges;
     }
+
     public void setEdges(List<Node> newEdges) {
         Objects.requireNonNull(newEdges, "edges cannot be null");
         this.edges = new ArrayList<Node>(newEdges);
@@ -36,16 +37,18 @@ public class Node {
     public Message getMessage() {
         return this.msg;
     }
+
     public void setMessage(Message msg) {
-        this.msg = Objects.requireNonNull(msg, "message cannot be null");
+        this.msg = msg;
     }
 
     public void addEdge(Node n) {
-
+        Objects.requireNonNull(n, "node cannot be null");
+        this.edges.add(n);
     }
 
     public boolean hasCycles(Node n) {
         return true;
     }
-    
+
 }
