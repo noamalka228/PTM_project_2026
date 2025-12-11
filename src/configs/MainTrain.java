@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import graph.Agent;
+import graph.Message;
+import graph.TopicManagerSingleton;
 import graph.TopicManagerSingleton.TopicManager;
 
 public class MainTrain {
