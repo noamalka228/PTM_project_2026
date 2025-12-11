@@ -1,6 +1,7 @@
 package configs;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,8 +48,25 @@ public class Node {
         this.edges.add(n);
     }
 
-    public boolean hasCycles(Node n) {
-        return true;
+    public boolean hasCycles() {
+        HashSet<Node> visited = new HashSet<Node>();
+        return isCreatingCycles(this, this, visited);
     }
 
+    private boolean isCreatingCycles(Node origin, Node current, HashSet<Node> visited) {
+        if (current.edges.size() > 0) {
+            if (current.edges.contains(origin)) {
+                return true;
+            }
+            if (visited.contains(current)) {
+                return false;
+            }
+            visited.add(current);
+            for (Node child : current.edges) {
+                if (isCreatingCycles(origin, child, visited))
+                    return true;
+            }
+        }
+        return false;
+    }
 }
