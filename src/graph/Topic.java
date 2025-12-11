@@ -15,6 +15,14 @@ public class Topic {
         this.name = name;
     }
 
+    public List<Agent> getSubscribers() {
+        return this.subscribers;
+    }
+
+    public Set<Agent> getPublishers() {
+        return this.publishers;
+    }
+
     public void subscribe(Agent a) {
         if (!subscribers.contains(a)) {
             subscribers.add(verifyAgentNotNull(a));
