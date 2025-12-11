@@ -45,7 +45,8 @@ public class Node {
 
     public void addEdge(Node n) {
         Objects.requireNonNull(n, "node cannot be null");
-        this.edges.add(n);
+        if (!this.edges.contains(n))
+            this.edges.add(n);
     }
 
     public boolean hasCycles() {
