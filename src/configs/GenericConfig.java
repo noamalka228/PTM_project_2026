@@ -31,7 +31,8 @@ public class GenericConfig implements Config {
 
         List<String> lines = readConfigLines();
         if (lines.size() % 3 != 0) {
-            throw new IllegalArgumentException("Configuration file should contain groups of 3 lines (class, subs, pubs)");
+            throw new IllegalArgumentException(
+                    "Configuration file should contain groups of 3 lines (class, subs, pubs)");
         }
 
         for (int i = 0; i < lines.size(); i += 3) {
@@ -67,42 +68,35 @@ public class GenericConfig implements Config {
 
     private List<String> readConfigLines() {
         try {
-            List<String> rawLines = Files.readAllLines(Path.of(confFilePath), StandardCharsets.UTF_8);
-            List<String> trimmed = new ArrayList<>();
-            for (String line : rawLines) {
+            List<String> lines = Files.readAllLines(Path.of(confFilePath), StandardCharsets.UTF_8);
+            List<String> trimmedLines = new ArrayList<>();
+            for (String line : lines) {
                 String l = line.trim();
                 if (!l.isEmpty()) {
-                    trimmed.add(l);
+                    trimmedLines.add(l);
                 }
             }
-            return trimmed;
+            return trimmedLines;
         } catch (IOException e) {
             throw new RuntimeException("Failed to read configuration file: " + confFilePath, e);
         }
     }
 
     private Agent instantiateAgent(String className, String[] subs, String[] pubs) {
+        String classNameToPass = className;
+        if (className.startsWith("src."))
+            classNameToPass = className.substring(4);
         try {
-            Class<? extends Agent> clazz = resolveAgentClass(className);
+            Class<? extends Agent> clazz = Class.forName(classNameToPass).asSubclass(Agent.class);
             Constructor<? extends Agent> ctor = clazz.getConstructor(String[].class, String[].class);
             return ctor.newInstance((Object) subs, (Object) pubs);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Agent class not found: " + className, e);
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Agent " + className + " must have a constructor (String[] subs, String[] pubs)", e);
+            throw new IllegalArgumentException(
+                    "Agent " + className + " does not have a constructor (String[] subs, String[] pubs)", e);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Failed to instantiate agent: " + className, e);
-        }
-    }
-
-    private Class<? extends Agent> resolveAgentClass(String className) throws ClassNotFoundException {
-        try {
-            return Class.forName(className).asSubclass(Agent.class);
-        } catch (ClassNotFoundException e) {
-            if (className.startsWith("src.")) {
-                return Class.forName(className.substring(4)).asSubclass(Agent.class);
-            }
-            throw e;
         }
     }
 
