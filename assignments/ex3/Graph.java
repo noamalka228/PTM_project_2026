@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import test.Agent;
-import test.Topic;
-import test.TopicManagerSingleton;
-import test.TopicManagerSingleton.TopicManager;
+import graph.Agent;
+import graph.Topic;
+import graph.TopicManagerSingleton;
+import graph.TopicManagerSingleton.TopicManager;
 
 public class Graph extends ArrayList<Node> {
     private final TopicManager tm;
