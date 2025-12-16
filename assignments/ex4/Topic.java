@@ -1,4 +1,4 @@
-package graph;
+package test;
 
 import java.util.List;
 import java.util.Objects;

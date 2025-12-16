@@ -1,4 +1,4 @@
-package configs;
+package test;
 
 import graph.Agent;
 import graph.Message;

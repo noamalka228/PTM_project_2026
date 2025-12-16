@@ -1,4 +1,4 @@
-package graph;
+package test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
