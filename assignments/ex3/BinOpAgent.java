@@ -1,4 +1,4 @@
-package configs;
+package test;
 
 import java.util.function.BinaryOperator;
 
@@ -63,8 +63,5 @@ public class BinOpAgent implements Agent {
 
     @Override
     public void close() {
-        tm.getTopic(this.firstInputTopicName).unsubscribe(this);
-        tm.getTopic(this.secondInputTopicName).unsubscribe(this);
-        tm.getTopic(this.outputTopicName).removePublisher(this);
     }
 }
