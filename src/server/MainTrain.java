@@ -90,11 +90,56 @@ public class MainTrain { // RequestParser
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
             out.print("GET /publish HTTP/1.1\r\nHost: localhost\r\n\r\n");
             out.flush();
-            in.readLine(); // consume status line to ensure server replied
+
+            String statusLine = in.readLine();
+            if (statusLine == null || !statusLine.startsWith("HTTP/1.1 200")) {
+                System.out.println("Publish endpoint status failed (-10)");
+                return;
+            }
+
+            String headerLine;
+            int contentLength = -1;
+            while ((headerLine = in.readLine()) != null && !headerLine.isEmpty()) {
+                String lower = headerLine.toLowerCase();
+                if (lower.startsWith("content-length:")) {
+                    try {
+                        contentLength = Integer.parseInt(headerLine.substring(headerLine.indexOf(':') + 1).trim());
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+
+            String body;
+            if (contentLength >= 0) {
+                char[] buf = new char[contentLength];
+                int read = 0;
+                while (read < contentLength) {
+                    int r = in.read(buf, read, contentLength - read);
+                    if (r == -1) break;
+                    read += r;
+                }
+                body = new String(buf, 0, read);
+            } else {
+                StringBuilder sb = new StringBuilder();
+                while ((headerLine = in.readLine()) != null) {
+                    sb.append(headerLine).append('\n');
+                }
+                body = sb.toString();
+            }
+
+            if (body == null || body.isEmpty()) {
+                System.out.println("Publish endpoint body missing (-10)");
+            }
+            System.out.println("Publish response body:");
+            System.out.println(body);
+        } finally {
+            server.close();
+            server.join(500);
         }
-        // server.close();
-        // server.join(500);
-        // Thread.sleep(500);
+        Thread.sleep(2000); // Give server time to shutdown
+        if (Thread.activeCount() != initialThreadCount) {
+            System.out.println("Server shutdown thread count test failed (-10)");
+        }
     }
 
     public static void main(String[] args) {
