@@ -11,51 +11,16 @@ import java.util.Map;
 public class RequestParser {
 
     public static RequestInfo parseRequest(BufferedReader reader) throws IOException {
-        String requestLine = reader.readLine();
-        if (requestLine == null || requestLine.isEmpty()) {
-            throw new IOException("Empty request");
-        }
-
-        String[] requestParts = requestLine.split(" ");
-        if (requestParts.length < 2) {
-            throw new IOException("Invalid request line: " + requestLine);
-        }
-
-        String method = requestParts[0];
-        String uri = requestParts[1];
-        // We can ignore the HTTP version for now
-
+        String[] requestLine = readRequestLine(reader);
+        String method = requestLine[0];
+        String uri = requestLine[1];
         Map<String, String> parameters = new HashMap<>();
-        String[] uriSegments = parseUri(uri, parameters); // Also fills parameters from query string
+        String[] uriSegments = parseUri(uri, parameters); // This fills parameters from query string
 
-        // skip headers
-        String line;
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
-        }
-
-        List<String> bodyLines = new ArrayList<>();
-        while ((line = reader.readLine()) != null) {
-            bodyLines.add(line);
-        }
-
-        int i = 0;
-        while (i < bodyLines.size()) {
-            String bodyLine = bodyLines.get(i);
-            if (bodyLine.isEmpty()) {
-                i++; // skip separator
-                break;
-            }
-            int eqIdx = bodyLine.indexOf('=');
-            if (eqIdx > 0) {
-                parameters.put(bodyLine.substring(0, eqIdx), bodyLine.substring(eqIdx + 1));
-                i++;
-            } else {
-                break;
-            }
-        }
-
-        String contentString = String.join("\n", bodyLines.subList(i, bodyLines.size()));
-        byte[] content = contentString.getBytes(StandardCharsets.UTF_8);
+        skipHeaders(reader); // Skip headers for now as they are not being used
+        List<String> bodyLines = readBodyLines(reader);
+        int contentStartIndex = collectBodyParameters(bodyLines, parameters);
+        byte[] content = buildContent(bodyLines, contentStartIndex);
 
         return new RequestInfo(method, uri, uriSegments, parameters, content);
     }
@@ -140,5 +105,61 @@ public class RequestParser {
                 }
             }
         }
+    }
+
+    private static String[] readRequestLine(BufferedReader reader) throws IOException {
+        String requestLine = reader.readLine();
+        if (requestLine == null || requestLine.isEmpty()) {
+            throw new IOException("Empty request");
+        }
+
+        String[] requestParts = requestLine.split(" ");
+        if (requestParts.length < 2) {
+            throw new IOException("Invalid request line: " + requestLine);
+        }
+
+        return new String[] { requestParts[0], requestParts[1] };
+    }
+
+    private static void skipHeaders(BufferedReader reader) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            // headers are ignored for now
+        }
+    }
+
+    private static List<String> readBodyLines(BufferedReader reader) throws IOException {
+        List<String> bodyLines = new ArrayList<>();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            bodyLines.add(line);
+        }
+        return bodyLines;
+    }
+
+    private static int collectBodyParameters(List<String> bodyLines, Map<String, String> parameters) {
+        int contentIndex = 0;
+        // Collect leading parameter lines until the first blank line (which is treated as a separator and skipped).
+        // Parameters may appear as "key=value" or just "key".
+        while (contentIndex < bodyLines.size()) {
+            String bodyLine = bodyLines.get(contentIndex);
+            if (bodyLine.isEmpty()) {
+                contentIndex++; // consume separator before content
+                break;
+            }
+            int eqIdx = bodyLine.indexOf('=');
+            if (eqIdx >= 0) {
+                parameters.put(bodyLine.substring(0, eqIdx), bodyLine.substring(eqIdx + 1));
+            } else {
+                parameters.put(bodyLine, "");
+            }
+            contentIndex++;
+        }
+        return contentIndex;
+    }
+
+    private static byte[] buildContent(List<String> bodyLines, int contentStartIndex) {
+        String contentString = String.join("\n", bodyLines.subList(contentStartIndex, bodyLines.size()));
+        return contentString.getBytes(StandardCharsets.UTF_8);
     }
 }
