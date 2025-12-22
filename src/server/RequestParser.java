@@ -131,8 +131,6 @@ public class RequestParser {
     private static List<String> readBodyLines(BufferedReader reader) throws IOException {
         List<String> bodyLines = new ArrayList<>();
         String line;
-        // Only attempt to read body lines when the stream already has data ready.
-        // This prevents blocking on requests without a body (common for GET).
         while (reader.ready() && (line = reader.readLine()) != null) {
             bodyLines.add(line);
         }
@@ -141,12 +139,10 @@ public class RequestParser {
 
     private static int collectBodyParameters(List<String> bodyLines, Map<String, String> parameters) {
         int contentIndex = 0;
-        // Collect leading parameter lines until the first blank line (which is treated as a separator and skipped).
-        // Parameters may appear as "key=value" or just "key".
         while (contentIndex < bodyLines.size()) {
             String bodyLine = bodyLines.get(contentIndex);
             if (bodyLine.isEmpty()) {
-                contentIndex++; // consume separator before content
+                contentIndex++;
                 break;
             }
             int eqIdx = bodyLine.indexOf('=');
