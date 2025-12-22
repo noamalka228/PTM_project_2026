@@ -14,9 +14,7 @@ import java.util.Random;
 
 import server.RequestParser.RequestInfo;
 
-
 public class MainTrain { // RequestParser
-    
 
     private static void testParseRequest() {
         // Test data
@@ -66,21 +64,23 @@ public class MainTrain { // RequestParser
                 System.out.println("Content test failed (-5)");
             } 
             input.close();
-        } catch (IOException e) {
-            System.out.println("Exception occurred during parsing: " + e.getMessage() + " (-5)");
-        }        
+        }catch(
+
+    IOException e)
+    {
+        System.out.println("Exception occurred during parsing: " + e.getMessage() + " (-5)");
+    }
     }
 
-
-    public static void testServer() throws Exception{
-		// implement your own tests!
+    public static void testServer() throws Exception {
+        // implement your own tests!
     }
-    
+
     public static void main(String[] args) {
         testParseRequest(); // 40 points
-        try{
+        try {
             testServer(); // 60
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println("your server throwed an exception (-60)");
         }
         System.out.println("done");
