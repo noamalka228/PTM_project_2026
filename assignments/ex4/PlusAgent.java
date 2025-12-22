@@ -1,9 +1,9 @@
 package test;
 
-import graph.Agent;
-import graph.Message;
-import graph.TopicManagerSingleton;
-import graph.TopicManagerSingleton.TopicManager;
+import test.Agent;
+import test.Message;
+import test.TopicManagerSingleton;
+import test.TopicManagerSingleton.TopicManager;
 
 public class PlusAgent implements Agent {
     private static int instanceCounter = 0;
