@@ -131,7 +131,9 @@ public class RequestParser {
     private static List<String> readBodyLines(BufferedReader reader) throws IOException {
         List<String> bodyLines = new ArrayList<>();
         String line;
-        while ((line = reader.readLine()) != null) {
+        // Only attempt to read body lines when the stream already has data ready.
+        // This prevents blocking on requests without a body (common for GET).
+        while (reader.ready() && (line = reader.readLine()) != null) {
             bodyLines.add(line);
         }
         return bodyLines;
