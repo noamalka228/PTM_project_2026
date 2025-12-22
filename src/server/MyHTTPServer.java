@@ -34,14 +34,13 @@ public class MyHTTPServer extends Thread implements HTTPServer {
 
     @Override
     public void removeServlet(String httpCommanmd, String uri) {
-        // if (httpCommanmd == null || uri == null) {
-        // return;
-        // }
-        // Map<String, Servlet> perMethod =
-        // servletRegistry.get(httpCommanmd.toUpperCase());
-        // if (perMethod != null) {
-        // perMethod.remove(uri);
-        // }
+        if (httpCommanmd == null || uri == null) {
+            return;
+        }
+        Map<String, Servlet> perMethod = servletRegistry.get(httpCommanmd.toUpperCase());
+        if (perMethod != null) {
+            perMethod.remove(uri);
+        }
     }
 
     @Override
@@ -54,13 +53,14 @@ public class MyHTTPServer extends Thread implements HTTPServer {
                     handleClient(client); // sequential handling per request
                 } catch (SocketException se) {
                     if (running) {
-                        se.printStackTrace();
+                        throw se;
                     }
-                    break;
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            if (running) {
+                System.err.println("Server I/O error: " + e.getMessage());
+            }
         }
     }
 
@@ -78,7 +78,9 @@ public class MyHTTPServer extends Thread implements HTTPServer {
                 sendSimpleResponse(out, "404 Not Found", "text/plain", "Not Found");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            if (running) {
+                System.err.println("Client handling error: " + e.getMessage());
+            }
         }
     }
 
@@ -117,7 +119,6 @@ public class MyHTTPServer extends Thread implements HTTPServer {
     @Override
     public void start() {
         running = true;
-        startEnterListener();
         super.start();
     }
 
@@ -128,7 +129,6 @@ public class MyHTTPServer extends Thread implements HTTPServer {
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         this.interrupt();
@@ -136,18 +136,5 @@ public class MyHTTPServer extends Thread implements HTTPServer {
 
     public int getPort() {
         return serverPort;
-    }
-
-    private void startEnterListener() {
-        Thread t = new Thread(() -> {
-            try {
-                System.in.read(); // waits for any keypress / enter
-                close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }, "httpserver-stdin-listener");
-        t.setDaemon(true);
-        t.start();
     }
 }
