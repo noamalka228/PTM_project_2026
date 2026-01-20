@@ -21,7 +21,7 @@ public class ConfLoader implements Servlet {
 
         Path target = Paths.get("config_files", "uploaded.conf");
         Files.createDirectories(target.getParent());
-        Files.writeString(target, body, StandardCharsets.UTF_8);
+        Files.write(target, body.getBytes(StandardCharsets.UTF_8));
 
         GenericConfig config = new GenericConfig();
         config.setConfFile(target.toString());

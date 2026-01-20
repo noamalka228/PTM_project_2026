@@ -1,4 +1,4 @@
-package configs;
+package test;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import graph.Agent;
-import graph.TopicManagerSingleton;
-import graph.TopicManagerSingleton.TopicManager;
+import test.Agent;
+import test.TopicManagerSingleton;
+import test.TopicManagerSingleton.TopicManager;
 
 public class GenericConfig implements Config {
     private String confFilePath;
